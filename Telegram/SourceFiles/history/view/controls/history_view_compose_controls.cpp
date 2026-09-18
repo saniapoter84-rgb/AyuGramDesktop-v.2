@@ -130,6 +130,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "ayu/ayu_settings.h"
 #include "history/history_item_components.h"
 
+#include "styles/style_ayu_styles.h"
+
 
 namespace HistoryView {
 namespace {
@@ -4683,6 +4685,15 @@ void ComposeControls::paintBackground(QPainter &p, QRect full, QRect clip) {
 				- _st.starsSkip);
 		}
 		p.drawRoundedRect(full, _st.radius, _st.radius);
+	} else if (AyuSettings::getInstance().webStyleUi()) {
+		auto hq = PainterHighQualityEnabler(p);
+		const auto radius = st::webStyleComposerRadius;
+		p.setBrush(_st.bg);
+		p.setPen(Qt::NoPen);
+		p.drawRoundedRect(
+			full.marginsAdded({ 0, 0, 0, radius }),
+			radius,
+			radius);
 	} else {
 		p.fillRect(clip, _st.bg);
 	}
