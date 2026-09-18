@@ -45,7 +45,10 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 
 // AyuGram includes
 #include "styles/style_ayu_icons.h"
+#include "ayu/ayu_settings.h"
 #include "ayu/ui/ayu_userpic.h"
+
+#include "styles/style_ayu_styles.h"
 
 
 [[nodiscard]] PeerListRowId UniqueRowIdFromString(const QString &d) {
@@ -1913,8 +1916,22 @@ void PeerListContent::mousePressEvent(QMouseEvent *e) {
 					std::move(updateCallback));
 			} else {
 				const auto maskGenerator = [&] {
-					return Ui::RippleAnimation::RectMask(
-						QSize(width(), _rowHeight));
+					const auto size = QSize(width(), _rowHeight);
+					if (!AyuSettings::getInstance().webStyleUi()) {
+						return Ui::RippleAnimation::RectMask(size);
+					}
+					const auto inset = st::webStyleRowInset;
+					const auto radius = st::webStyleRowRadius;
+					return Ui::RippleAnimation::MaskByDrawer(
+						size,
+						false,
+						[&](QPainter &p) {
+							p.drawRoundedRect(
+								QRect(QPoint(), size).marginsRemoved(
+									{ inset, 0, inset, 0 }),
+								radius,
+								radius);
+						});
 				};
 				row->addRipple(_st.item, maskGenerator, point, std::move(updateCallback));
 			}
@@ -2123,7 +2140,22 @@ void PeerListContent::paintRowContent(
 		}
 	});
 
-	p.fillRect(0, 0, outerWidth, _rowHeight, bg);
+	if (selected && AyuSettings::getInstance().webStyleUi()) {
+		p.fillRect(0, 0, outerWidth, _rowHeight, st.button.textBg);
+
+		auto hq = PainterHighQualityEnabler(p);
+		const auto inset = st::webStyleRowInset;
+		const auto radius = st::webStyleRowRadius;
+		p.setPen(Qt::NoPen);
+		p.setBrush(bg);
+		p.drawRoundedRect(
+			QRect(0, 0, outerWidth, _rowHeight)
+				.marginsRemoved({ inset, 0, inset, 0 }),
+			radius,
+			radius);
+	} else {
+		p.fillRect(0, 0, outerWidth, _rowHeight, bg);
+	}
 	row->paintRipple(p, st, 0, 0, outerWidth);
 	row->paintUserpic(
 		p,

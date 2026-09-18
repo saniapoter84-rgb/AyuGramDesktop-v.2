@@ -204,10 +204,8 @@ constexpr auto kBlurRadius = 24;
 
 [[nodiscard]] QImage WebStyleRowMask(QSize size) {
 	return Ui::RippleAnimation::MaskByDrawer(size, false, [&](QPainter &p) {
-		const auto inset = st::webStyleDialogRowInset;
-		const auto radius = st::webStyleDialogRowRadius;
-		p.setPen(Qt::NoPen);
-		p.setBrush(Qt::white);
+		const auto inset = st::webStyleRowInset;
+		const auto radius = st::webStyleRowRadius;
 		p.drawRoundedRect(
 			QRect(QPoint(), size).marginsRemoved({ inset, 0, inset, 0 }),
 			radius,

@@ -307,8 +307,8 @@ void PaintRowBg(
 	p.fillRect(geometry, plainBg);
 
 	auto hq = PainterHighQualityEnabler(p);
-	const auto inset = st::webStyleDialogRowInset;
-	const auto radius = st::webStyleDialogRowRadius;
+	const auto inset = st::webStyleRowInset;
+	const auto radius = st::webStyleRowRadius;
 	p.setPen(Qt::NoPen);
 	p.setBrush(highlightBg);
 	p.drawRoundedRect(

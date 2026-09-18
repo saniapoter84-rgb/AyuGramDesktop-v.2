@@ -118,8 +118,8 @@ ghostPickerButton: LinkButton(defaultLinkButton) {
 
 ayuBetaBadgePadding: margins(4px, 1px, 4px, 1px);
 
-webStyleDialogRowInset: 8px;
-webStyleDialogRowRadius: 10px;
+webStyleRowInset: 8px;
+webStyleRowRadius: 10px;
 webStyleComposerRadius: 12px;
 
 ayuServiceTimeBadgeFont: font(11px semibold);
