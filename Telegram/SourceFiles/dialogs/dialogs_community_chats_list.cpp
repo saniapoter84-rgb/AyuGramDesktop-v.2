@@ -164,6 +164,7 @@ void CommunityChatsList::paintEvent(QPaintEvent *e) {
 		.st = _st,
 		.community = _community,
 		.currentBg = st::dialogsBg,
+		.repaint = crl::guard(this, [=] { update(); }),
 		.now = crl::now(),
 		.width = width(),
 		.paused = paused,

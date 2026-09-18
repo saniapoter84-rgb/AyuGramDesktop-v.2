@@ -52,6 +52,7 @@ constexpr auto kHiddenLayer = 2;
 constexpr auto kBottomLayer = 1;
 constexpr auto kNoneLayer = 0;
 constexpr auto kBlurRadius = 24;
+constexpr auto kHighlightDuration = crl::time(120);
 
 [[nodiscard]] const QPainterPath &SubscriptionOutlinePath() {
 	static auto path = QPainterPath();
@@ -346,6 +347,23 @@ void BasicRow::paintRipple(
 			_ripple.reset();
 		}
 	}
+}
+
+float64 BasicRow::highlightedAnimated(
+		bool highlighted,
+		const Fn<void()> &repaint) const {
+	if (_highlighted != highlighted) {
+		_highlighted = highlighted;
+		if (repaint) {
+			_highlight.start(
+				repaint,
+				highlighted ? 0. : 1.,
+				highlighted ? 1. : 0.,
+				kHighlightDuration,
+				anim::easeOutCubic);
+		}
+	}
+	return _highlight.value(highlighted ? 1. : 0.);
 }
 
 void BasicRow::paintUserpic(

@@ -296,8 +296,8 @@ void PaintRowBg(
 		QRect geometry,
 		const QBrush &plainBg,
 		const QBrush &highlightBg,
-		bool highlighted) {
-	if (!highlighted) {
+		float64 highlighted) {
+	if (highlighted <= 0.) {
 		p.fillRect(geometry, plainBg);
 		return;
 	} else if (!AyuSettings::getInstance().webStyleUi()) {
@@ -307,14 +307,21 @@ void PaintRowBg(
 	p.fillRect(geometry, plainBg);
 
 	auto hq = PainterHighQualityEnabler(p);
+	const auto opacity = p.opacity();
 	const auto inset = st::webStyleRowInset;
 	const auto radius = st::webStyleRowRadius;
+	if (highlighted < 1.) {
+		p.setOpacity(opacity * highlighted);
+	}
 	p.setPen(Qt::NoPen);
 	p.setBrush(highlightBg);
 	p.drawRoundedRect(
 		geometry.marginsRemoved({ inset, 0, inset, 0 }),
 		radius,
 		radius);
+	if (highlighted < 1.) {
+		p.setOpacity(opacity);
+	}
 }
 
 void PaintExpandedTopicsBar(QPainter &p, float64 progress) {
@@ -519,12 +526,15 @@ void PaintRow(
 	if (swipeTranslation) {
 		p.translate(-swipeTranslation, 0);
 	}
+	const auto highlightedNow = context.active || context.selected;
 	PaintRowBg(
 		p,
 		geometry,
 		context.currentBg,
 		highlightBg,
-		context.active || context.selected);
+		AyuSettings::getInstance().webStyleUi()
+			? row->highlightedAnimated(highlightedNow, context.repaint)
+			: (highlightedNow ? 1. : 0.));
 	if (!(flags & Flag::TopicJumpRipple)) {
 		auto ripple = context.active
 			? st::dialogsRippleBgActive
@@ -1463,7 +1473,9 @@ void PaintCollapsedRow(
 		QRect{ 0, 0, context.width, st::dialogsImportantBarHeight },
 		context.currentBg,
 		st::dialogsBgOver,
-		context.selected);
+		AyuSettings::getInstance().webStyleUi()
+			? row.highlightedAnimated(context.selected, context.repaint)
+			: (context.selected ? 1. : 0.));
 
 	row.paintRipple(p, 0, 0, context.width);
 

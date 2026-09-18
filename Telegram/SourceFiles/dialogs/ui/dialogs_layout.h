@@ -64,6 +64,7 @@ struct PaintContext {
 	Data::Forum *forum = nullptr;
 	Data::CommunityInfo *community = nullptr;
 	required<QBrush> currentBg;
+	Fn<void()> repaint;
 	FilterId filter = 0;
 	float64 topicsExpanded = 0.;
 	crl::time now = 0;

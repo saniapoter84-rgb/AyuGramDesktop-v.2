@@ -70,6 +70,10 @@ public:
 		int outerWidth,
 		const QColor *colorOverride = nullptr) const;
 
+	[[nodiscard]] float64 highlightedAnimated(
+		bool highlighted,
+		const Fn<void()> &repaint) const;
+
 	[[nodiscard]] Ui::PeerUserpicView &userpicView() const {
 		return _userpic;
 	}
@@ -77,6 +81,8 @@ public:
 private:
 	mutable Ui::PeerUserpicView _userpic;
 	mutable std::unique_ptr<Ui::RippleAnimation> _ripple;
+	mutable Ui::Animations::Simple _highlight;
+	mutable bool _highlighted = false;
 
 };
 
