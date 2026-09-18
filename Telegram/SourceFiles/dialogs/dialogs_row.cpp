@@ -41,6 +41,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "ayu/ayu_settings.h"
 #include "ayu/features/filters/filters_controller.h"
 #include "ayu/ui/ayu_userpic.h"
+#include "styles/style_ayu_styles.h"
 
 
 namespace Dialogs {
@@ -201,6 +202,19 @@ constexpr auto kBlurRadius = 24;
 	return result;
 }
 
+[[nodiscard]] QImage WebStyleRowMask(QSize size) {
+	return Ui::RippleAnimation::MaskByDrawer(size, false, [&](QPainter &p) {
+		const auto inset = st::webStyleDialogRowInset;
+		const auto radius = st::webStyleDialogRowRadius;
+		p.setPen(Qt::NoPen);
+		p.setBrush(Qt::white);
+		p.drawRoundedRect(
+			QRect(QPoint(), size).marginsRemoved({ inset, 0, inset, 0 }),
+			radius,
+			radius);
+	});
+}
+
 } // namespace
 
 QRect CornerBadgeTTLRect(int photoSize) {
@@ -292,7 +306,9 @@ void BasicRow::addRipple(
 	if (!_ripple) {
 		addRippleWithMask(
 			origin,
-			Ui::RippleAnimation::RectMask(size),
+			AyuSettings::getInstance().webStyleUi()
+				? WebStyleRowMask(size)
+				: Ui::RippleAnimation::RectMask(size),
 			std::move(updateCallback));
 	} else {
 		_ripple->add(origin);

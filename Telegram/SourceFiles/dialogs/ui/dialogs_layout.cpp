@@ -52,8 +52,10 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "styles/style_window.h"
 
 // AyuGram includes
+#include "ayu/ayu_settings.h"
 #include "ayu/features/filters/filters_controller.h"
 #include "styles/style_ayu_icons.h"
+#include "styles/style_ayu_styles.h"
 
 
 namespace Dialogs::Ui {
@@ -289,6 +291,32 @@ int PaintBadges(
 	return (initial - right);
 }
 
+void PaintRowBg(
+		QPainter &p,
+		QRect geometry,
+		const QBrush &plainBg,
+		const QBrush &highlightBg,
+		bool highlighted) {
+	if (!highlighted) {
+		p.fillRect(geometry, plainBg);
+		return;
+	} else if (!AyuSettings::getInstance().webStyleUi()) {
+		p.fillRect(geometry, highlightBg);
+		return;
+	}
+	p.fillRect(geometry, plainBg);
+
+	auto hq = PainterHighQualityEnabler(p);
+	const auto inset = st::webStyleDialogRowInset;
+	const auto radius = st::webStyleDialogRowRadius;
+	p.setPen(Qt::NoPen);
+	p.setBrush(highlightBg);
+	p.drawRoundedRect(
+		geometry.marginsRemoved({ inset, 0, inset, 0 }),
+		radius,
+		radius);
+}
+
 void PaintExpandedTopicsBar(QPainter &p, float64 progress) {
 	auto hq = PainterHighQualityEnabler(p);
 	const auto radius = st::roundRadiusLarge;
@@ -474,11 +502,9 @@ void PaintRow(
 		&& itemIsEmpty
 		&& itemIsFiltered;
 
-	auto bg = context.active
+	const auto highlightBg = context.active
 		? st::dialogsBgActive
-		: context.selected
-		? st::dialogsBgOver
-		: context.currentBg;
+		: st::dialogsBgOver;
 	auto swipeTranslation = 0;
 	if (history
 		&& context.quickActionContext
@@ -493,7 +519,12 @@ void PaintRow(
 	if (swipeTranslation) {
 		p.translate(-swipeTranslation, 0);
 	}
-	p.fillRect(geometry, bg);
+	PaintRowBg(
+		p,
+		geometry,
+		context.currentBg,
+		highlightBg,
+		context.active || context.selected);
 	if (!(flags & Flag::TopicJumpRipple)) {
 		auto ripple = context.active
 			? st::dialogsRippleBgActive
@@ -1427,9 +1458,12 @@ void PaintCollapsedRow(
 		const QString &text,
 		int unread,
 		const PaintContext &context) {
-	p.fillRect(
+	PaintRowBg(
+		p,
 		QRect{ 0, 0, context.width, st::dialogsImportantBarHeight },
-		context.selected ? st::dialogsBgOver : context.currentBg);
+		context.currentBg,
+		st::dialogsBgOver,
+		context.selected);
 
 	row.paintRipple(p, 0, 0, context.width);
 

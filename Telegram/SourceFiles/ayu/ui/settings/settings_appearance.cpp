@@ -198,6 +198,12 @@ void BuildAppearance(SectionBuilder &builder, AyuSectionBuilder &ayu) {
 		.setter = &AyuSettings::setMaterialSwitches,
 	});
 	ayu.addSettingToggle({
+		.id = u"ayu/webStyleUi"_q,
+		.title = tr::ayu_WebStyleUi(),
+		.getter = &AyuSettings::webStyleUi,
+		.setter = &AyuSettings::setWebStyleUi,
+	});
+	ayu.addSettingToggle({
 		.id = u"ayu/disableCustomBackgrounds"_q,
 		.altIds = { u"ayu/customThemes"_q },
 		.title = tr::ayu_DisableCustomBackgrounds(),
